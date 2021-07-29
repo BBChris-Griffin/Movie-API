@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- metadata -->
+        <title>Hello Ajax</title>
+    </head>
+    <body>
+        <h1>Hello Ajax</h1>
+        <a href="http://www.google.com">Google it</a>
+
+        <form id="add-movie-form" method="post" action="/movie-api/movies">
+            <div><label for="movie-name">Movie Name</label><input type="text" id="movie-name" name="movie-name"/></div>
+            <div><label for="movie-genre">Movie Genre</label><input type="text" id="movie-genre" name="movie-genre"/></div>
+            <div><input type="submit" id="add-movie" vakue="Add Movie"/></div>
+        </form>
+
+        <table id="movie_table">
+            <tr>
+                <th>ID</th><th>Movie Name</th>
+            </tr>
+            <tr>
+                <td>id..</td><td>name..</td>
+            </tr>
+        </table>
+    </body>
+    <script type="text/javascript">
+
+        document.getElementById('add-movie-form').addEventListener('submit', function(event){
+            event.preventDefault();
+            var name_on_form = document. getElementById('movie-name').value;
+            var genre_on_form = document.getElementById('movie-genre').vaue;
+
+            var movie = {
+                name: name_on_form,
+                genre: genre_on_form
+            }
+
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState === 4 && xhr.status === 201) {
+                    console.log('Success!');
+                    var updatedMovie = JSON.parse(xhr.responseText);
+                    addMoviestoTable(updatedMovie);
+                }
+            }
+            xhr.open('POST', 'movie_api/movies');
+            xhr.send(movie);
+        });
+        // Ajax -asynchronous javascript and XML
+        // XHR
+        // closure
+        window.onload = function(){
+            // 1. Make an xhr object
+            let xhr = new XMLHttpRequest();
+            // let is within blocks, var is gloabl
+            // 2. define what happens
+            xhr.onreadystatechange = function(response){
+                if(xhr.readyState === 4) {
+                    var movieArray = JSON.parse(xhr.responseText);
+                    console.log(movieArray)
+                    //dom manipulation code
+                    for(let movie in movieArray) {
+                        addMoviestoTable(movie);
+                    }
+
+                    //forEach instead... Check video
+                }
+            }
+            // 3. open the xhr call
+            // url with beginning / 'context root'
+            xhr.open("GET", "http://localhost:8080/movie-api/movies");
+            // 4. send the ajax call
+            xhr.send();
+        }
+
+        function addMoviestoTable(movie) {
+            var tr = document.createElement('tr')
+            var id = document.createElement('td')
+            var name = document.createElement('td')
+            // ...
+            id.innerText = movie.id; // properties of JSON object
+            name.innerText = movie.name; // store in HTML tag value
+            tr.appendChild(id)
+            tr.appendChild(name)
+            document.getElementById('movie_table').appendChild(tr);
+        }
+    </script>
+</html>

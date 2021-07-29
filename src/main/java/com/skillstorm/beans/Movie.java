@@ -1,8 +1,9 @@
 package com.skillstorm.beans;
 
 import java.sql.Date;
+import java.util.Objects;
 
-public class Movie {
+public class Movie implements Comparable<Movie>{
 	private int id;
 	private String name;
 	private String genre;
@@ -10,7 +11,7 @@ public class Movie {
 	private boolean availability;
 	private Date next_available_time;
 	
-	
+	// Make a hashcode, equals, and implement Comparable for compareTo function
 	
 	public Movie() {
 		super();
@@ -63,6 +64,28 @@ public class Movie {
 	public String toString() {
 		return "Movie [id=" + id + ", name=" + name + ", genre=" + genre + ", movie_id=" + movie_id + ", availaiblity="
 				+ availability + ", next_available_time=" + next_available_time + "]";
+	}
+	@Override
+	public int hashCode() {
+		return Objects.hash(availability, genre, id, movie_id, name, next_available_time);
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Movie other = (Movie) obj;
+		return availability == other.availability && Objects.equals(genre, other.genre) && id == other.id
+				&& Objects.equals(movie_id, other.movie_id) && Objects.equals(name, other.name)
+				&& Objects.equals(next_available_time, other.next_available_time);
+	}
+	@Override
+	public int compareTo(Movie other) {
+		// TODO Auto-generated method stub
+		return this.id - other.id;
 	}
 	
 }

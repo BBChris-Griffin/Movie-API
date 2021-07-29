@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeSet;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -20,7 +21,7 @@ public class MovieServlet extends HttpServlet{
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		List<Movie> movies = new LinkedList<>();
+		TreeSet<Movie> movies = new TreeSet<>();
 		boolean available = false;
 		if(req.getParameter("name") == null) {	
 			try(MovieDAO dao = new MovieDAO()) {
@@ -52,9 +53,7 @@ public class MovieServlet extends HttpServlet{
 		Movie movie = mapper.readValue(req.getInputStream(), Movie.class);
 		try(MovieDAO dao = new MovieDAO()) {
 			dao.save(movie);
-			String json = mapper.writeValueAsString(movie);
-			resp.getWriter().print(json);
-			
+			resp.setStatus(201);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -67,7 +66,7 @@ public class MovieServlet extends HttpServlet{
 			int id = Integer.valueOf(req.getParameter("id"));
 			try(MovieDAO dao = new MovieDAO()) {
 				dao.movieReturned(id);
-				resp.getWriter().print(id);
+				resp.setStatus(201);
 			} catch(Exception e) {
 				e.printStackTrace();
 			}		
@@ -89,7 +88,7 @@ public class MovieServlet extends HttpServlet{
 		int id = Integer.valueOf(req.getParameter("id"));
 		try(MovieDAO dao = new MovieDAO()) {
 			dao.delete(id);
-			resp.getWriter().print(id);
+			resp.getWriter().print(id + " Deleted");
 		} catch(Exception e) {
 			e.printStackTrace();
 		}		

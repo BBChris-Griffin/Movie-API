@@ -6,11 +6,13 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeSet;
 
 import com.mysql.cj.x.protobuf.MysqlxSql.StmtExecute;
 import com.skillstorm.beans.Movie;
@@ -47,7 +49,7 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 //			Date date;
 //			date.setYear(2021);
 //			Date.valueOf("2021-07-30");
-			dao.movieRented(106, Date.valueOf("2021-07-30"));
+			//dao.movieRented(106, Date.valueOf("2021-07-30"));
 			//System.out.println("deleted");
 		} catch (Exception e) {
 			System.out.println("Failed");
@@ -62,6 +64,10 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 		
 	}
 	
+	public Connection getConnection() {
+		return connection;
+	}
+
 	public void connect() throws Exception {
 		String url = "jdbc:mysql://localhost:3307/java_project";
 		String username = "root";
@@ -72,7 +78,7 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 		System.out.println("Connected");
 	}
 	@Override
-	public boolean save(Movie movie) throws SQLException {
+	public int save(Movie movie) throws SQLException {
 		// TODO Auto-generated method stub
 		try {
 			connect();
@@ -81,18 +87,22 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 		}
 		String sql = "INSERT INTO MOVIE(NAME, GENRE, MOVIE_ID, AVAILABILITY, NEXT_AVAILABLE_TIME) "
 				+ "VALUES (?, ?, ?, ?, ?)";
-		PreparedStatement stmt =  connection.prepareStatement(sql);
+		PreparedStatement stmt =  connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		stmt.setString(1, movie.getName());
 		stmt.setString(2, movie.getGenre());
 		stmt.setString(3, movie.getMovie_id());
 		stmt.setBoolean(4, movie.isAvailability());
 		stmt.setDate(5, movie.getNext_available_time());
-		int rows = stmt.executeUpdate();
+		stmt.executeUpdate();
+		ResultSet rs = stmt.getGeneratedKeys();
+		rs.next();
 		System.out.println("Saved");
-		return rows > 0 ? true : false;
+		return rs.getInt(1);
 	}
+	
+	// Change to TreeSet
 	@Override
-	public List<Movie> findAll() throws SQLException {
+	public TreeSet<Movie> findAll() throws SQLException {
 		// TODO Auto-generated method stub
 		try {
 			connect();
@@ -100,7 +110,7 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 			e.printStackTrace();
 		}
 		String sql = "SELECT * FROM MOVIE";
-		List<Movie> movies = new LinkedList<Movie>();
+		TreeSet<Movie> movies = new TreeSet<Movie>();
 		PreparedStatement stmt = connection.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();		
 		while(rs.next()) {
@@ -141,7 +151,7 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 	}
 
 	@Override
-	public boolean delete(int condition) throws SQLException {
+	public int delete(int id) throws SQLException {
 		// TODO Auto-generated method stub
 		try {
 			connect();
@@ -150,9 +160,9 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 		}
 		String sql = "DELETE FROM MOVIE WHERE ID = ?";
 		PreparedStatement stmt = connection.prepareStatement(sql);
-		stmt.setInt(1, condition);
-		int success = stmt.executeUpdate();
-		return success > 0 ? true : false;
+		stmt.setInt(1, id);
+		int rows = stmt.executeUpdate();
+		return rows;
 	}
 
 	@Override
@@ -174,7 +184,7 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 	public boolean isAvailable(String movieName) throws SQLException {
 		// TODO Auto-generated method stub
 		try {
-			connect();
+				connect();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -192,7 +202,7 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 	}
 
 	@Override
-	public boolean movieReturned(int id) throws SQLException {
+	public int movieReturned(int id) throws SQLException {
 		// TODO Auto-generated method stub
 		try {
 			connect();
@@ -204,7 +214,7 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 		stmt.setInt(1, id);
 		int success = stmt.executeUpdate();
 		this.updateAvailabilty(id, false, null);
-		return success > 0 ? true : false;
+		return success;
 	}
 
 	@Override
@@ -233,7 +243,7 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 
 	// Sends wrong date...!
 	@Override
-	public boolean movieRented(int id, Date date) throws SQLException {
+	public int movieRented(int id, Date date) throws SQLException {
 		// TODO Auto-generated method stub
 		try {
 			connect();
@@ -245,26 +255,26 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 		stmt.setInt(1, id);
 		int success = stmt.executeUpdate();
 		this.updateAvailabilty(id, true, date);
-		return success > 0 ? true : false;
+		return success;
 	}
 }
 
 interface MovieDAOInterface {
-	public boolean save(Movie movie) throws SQLException;
+	public int save(Movie movie) throws SQLException;
 	
-	public List<Movie> findAll() throws SQLException;
+	public TreeSet<Movie> findAll() throws SQLException;
 	
 	public Movie findFirst() throws SQLException;
 	
 	public boolean isAvailable(String movieName) throws SQLException;
 	
-	public boolean delete(int condition) throws SQLException;
+	public int delete(int id) throws SQLException;
 	
 	public boolean update() throws SQLException;
 	
-	public boolean movieReturned(int id) throws SQLException;
+	public int movieReturned(int id) throws SQLException;
 	
 	public boolean updateAvailabilty(int id, boolean rented, Date nat) throws SQLException;
 		
-	public boolean movieRented(int id, Date date) throws SQLException;
+	public int movieRented(int id, Date date) throws SQLException;
 }
