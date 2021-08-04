@@ -21,9 +21,10 @@ public class MovieServlet extends HttpServlet{
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		TreeSet<Movie> movies = new TreeSet<>();
+		
 		boolean available = false;
-		if(req.getParameter("name") == null) {	
+		if(req.getParameter("name") == null) {
+			TreeSet<Movie> movies = new TreeSet<>();
 			try(MovieDAO dao = new MovieDAO()) {
 				movies = dao.findAll();
 			} catch(Exception e) {
@@ -34,13 +35,14 @@ public class MovieServlet extends HttpServlet{
 			resp.getWriter().print(json);
 		}
 		else {
+			List<Movie> movies = new LinkedList<>();
 			try(MovieDAO dao = new MovieDAO()) {
-				available = dao.isAvailable(req.getParameter("name"));
+				movies = dao.findByName(req.getParameter("name"));
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
 			ObjectMapper mapper = new ObjectMapper();
-			String json = mapper.writeValueAsString(available);
+			String json = mapper.writeValueAsString(movies);
 			resp.getWriter().print(json);
 		}
 		

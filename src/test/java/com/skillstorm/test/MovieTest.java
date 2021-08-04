@@ -103,7 +103,14 @@ public class MovieTest {
 			rs.next();
 			boolean expected = rs.getBoolean(1);
 			
-			boolean actual = dao.isAvailable("Drunken Master");
+			List<Movie> movies = dao.findByName("Drunken Master");
+			boolean actual = false;
+			for(int i = 0; i < movies.size(); i++) {
+				if(movies.get(i).isAvailability()) {
+					actual = true;
+					break;
+				}
+			}
 			assertEquals(expected, actual);
 		} catch(Exception e) {
 			e.printStackTrace();

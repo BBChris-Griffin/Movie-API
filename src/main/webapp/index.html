@@ -10,7 +10,7 @@
     </head>
     <style>
         body {
-            background-color: yellow;
+            background-color: gold;
         }
         /* @include media-breakpoint-up(md) {
             #bb-photo {
@@ -25,16 +25,21 @@
         } */
     </style>
     <body>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <a class="navbar-brand" href="#">BlockBuster</a>
+        <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" style="color:gold" href="#">BlockBuster</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                  <a class="nav-link" href="#add-form"> Add Movie</a>
+                </li>
+            </ul>
 
-            <div class="collapse navbar-collapse" id="movie-search">
-                <form class="form-inline my-2 my-lg-0">
+            <div class="collapse navbar-collapse justify-content-end" id="movie-search" >
+                <form class="form-inline my-2 my-lg-0" id="search-form">
                 <input class="form-control mr-sm-2" id="search-name" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" id="search-button" type="submit">Search</button>
+                <button class="btn btn-outline-primary my-2 my-sm-0" id="search-button" type="submit">Search</button>
                 </form>
             </div>
         </nav>
@@ -55,20 +60,26 @@
                 </table>
             </div>      
         </div>  
-        <div style="background-color:blue;" >
-            <h2 style="color: gold;">Want to Donate a Movie? Add Below!</h2>
-            <form id="add-movie-form" method="post" action="/movie-api/movies">
-                <div><label for="movie-name" style="color: gold;">Movie Name</label><input type="text" id="movie-name" name="movie-name"/></div>
-                <div><label for="movie-genre" style="color: gold;">Movie Genre</label><input type="text" id="movie-genre" name="movie-genre"/></div>
-                <div><input type="submit" id="add-movie" value="Add Movie" class="btn btn-success"/></div>
-            </form>
-        </div>
+        <a name="add-form">
+            <div style="background-color:blue;" class="container-fluid">
+                <div="row">
+                    <h2 style="color: gold;">Want to Donate a Movie? Add Below!</h2>
+                </div>
+                <div="row">
+                    <form id="add-movie-form" method="post" action="/movie-api/movies">
+                        <div class="col-lg-6"><label for="movie-name" style="color: gold; padding-right: 15px;">Movie Name </label><input type="text" id="movie-name" name="movie-name"/></div>
+                        <div class="col-lg-6"><label for="movie-genre" style="color: gold; padding-right: 15px;">Movie Genre </label><input type="text" id="movie-genre" name="movie-genre"/></div>
+                        <div class="col-lg-6"><input type="submit" id="add-movie" value="Add Movie" class="btn btn-success"/></div>
+                    </form>
+                </div>
+            </div>
+        </a>
 
         <div class="modal fade" id="confirm-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                  <h5 class="modal-title" id="exampleModalLabel">Alert</h5>
                   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                   </button>
@@ -97,15 +108,28 @@
                         $('#confirm-modal').modal(focus)
                     } else {*/
                         console.log('Success!');
-                        var isAvailable = JSON.parse(xhr.responseText);
+                        let movieArray = JSON.parse(xhr.responseText);
+                        var isAvailable = false;
+                        for(var i = 0; i < movieArray.length; i++) {
+                            if(movieArray[i].availability == true) {
+                                isAvailable = true;
+                                break;
+                            }
+                        }
                         var text = document.getElementById('movie-change');
                         if(isAvailable) {
-                            text.innerText = "The Movie is available!";
+                            text.innerText = "Hooray! The movie is available at ID(s)";
+                            movieArray.forEach(movie => {
+                                if(movie.availability == true) {
+                                    text.innerText += " [" + movie.id + "]";
+                                }
+                            })
+                            text.innerText += "!";
                         } else {
                             text.innerText = "Sorry. The movie isn't available.";
-
                         }
                         $('#confirm-modal').modal(focus)
+                        document.getElementById("search-form").reset();
                     //}  
                 }
             }
@@ -118,8 +142,8 @@
             event.preventDefault();
             var name_on_form = document.getElementById('movie-name').value;
             var genre_on_form = document.getElementById('movie-genre').value;
-            var movie_id1 = Math.random() * (9999 - 1000) + 1000;
-            var movie_id2 = Math.random() * (9999 - 1000) + 1000;
+            var movie_id1 =  Math.ceil(Math.random() * (99999 - 10000) + 10000);
+            var movie_id2 =  Math.ceil(Math.random() * (99999 - 10000) + 10000);
             var movie_id = movie_id1 + "-" + movie_id2;
             var movie_available = true;
             var movie_nat = null;
@@ -146,6 +170,7 @@
                     var text = document.getElementById('movie-change');
                     text.innerText = "Thanks for the Submission!";
                     $('#confirm-modal').modal(focus)
+                    document.getElementById("add-movie-form").reset();
                 }
             }
             xhr.open('POST', 'http://localhost:8080/movie-api/movies');
@@ -223,7 +248,7 @@
                 let xhr = new XMLHttpRequest();
                 xhr.onreadystatechange = function(){
                     if(xhr.readyState === 4 && xhr.status === 201) {
-                        console.log('Success!' + xhr.responseText);
+                        console.log('Success!');
                         var availableCol = document.getElementById("available " + idNum);
                         availableCol.innerText = true;
                         var natCol = document.getElementById("nat " + idNum);
@@ -261,7 +286,6 @@
                 xhr.onreadystatechange = function(){
                     if(xhr.readyState === 4 && xhr.status === 201) {
                         console.log('Success!');
-                        console.log(xhr.responseText);
                         var availableCol = document.getElementById("available " + idNum);
                         availableCol.innerText = false;
                         var natCol = document.getElementById("nat " + idNum);
@@ -294,7 +318,6 @@
                     if(xhr.readyState === 4) {
                         console.log('Success!');
                         let index = deleteButton.parentElement.rowIndex;
-                        console.log(index)
                         document.getElementById('movie_table').deleteRow(index);
                         var text = document.getElementById('movie-change');
                         text.innerText = "Movie Successfully Removed!";

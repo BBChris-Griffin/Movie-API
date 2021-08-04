@@ -185,24 +185,29 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 	}
 
 	@Override
-	public boolean isAvailable(String movieName) throws SQLException {
+	public List<Movie> findByName(String movieName) throws SQLException {
 		// TODO Auto-generated method stub
 		try {
 				connect();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		String sql = "SELECT AVAILABILITY, NEXT_AVAILABLE_TIME FROM MOVIE WHERE NAME = ?";
+		//String sql = "SELECT AVAILABILITY, NEXT_AVAILABLE_TIME FROM MOVIE WHERE NAME = ?";
+		String sql = "SELECT * FROM MOVIE WHERE NAME = ?";
+		List<Movie> movies = new LinkedList<Movie>();
 		PreparedStatement stmt = connection.prepareStatement(sql);
 		stmt.setString(1, movieName);
-		ResultSet rs = stmt.executeQuery();
-		rs.next();
-		if(rs.getBoolean(1) == true) {
-			return true;
-		} else {
-			System.out.println(rs.getDate(2));
-			return false;
+		ResultSet rs = stmt.executeQuery();		
+		while(rs.next()) {
+			Movie movie = new Movie(rs.getString("NAME"), rs.getString("GENRE"), rs.getString("movie_id"),
+					rs.getBoolean("availability"), rs.getDate("next_available_time"));
+			movie.setId(rs.getInt("ID"));
+			if(movie.getNext_available_time() != null) {
+				movie.setLocalDate();
+			}
+			movies.add(movie);
 		}
+		return movies;
 	}
 
 	@Override
@@ -270,7 +275,7 @@ interface MovieDAOInterface {
 	
 	public Movie findFirst() throws SQLException;
 	
-	public boolean isAvailable(String movieName) throws SQLException;
+	public List<Movie> findByName(String movieName) throws SQLException;
 	
 	public int delete(int id) throws SQLException;
 	
