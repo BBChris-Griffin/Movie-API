@@ -24,7 +24,7 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 			//Movie movie = new Movie("Police Story", "Kung-Fu", "451-453", true, null);
 			//dao.save(movie);
 			//Movie movie = dao.findFirst();
-//			List<Movie> movies = dao.findAll();
+			TreeSet<Movie> movies = dao.findAll();
 //			for(int i = 0; i < movies.size(); i++) {
 //				System.out.println(movies.get(i).getName());
 //			}
@@ -78,7 +78,7 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 		System.out.println("Connected");
 	}
 	@Override
-	public int save(Movie movie) throws SQLException {
+	public Movie save(Movie movie) throws SQLException {
 		// TODO Auto-generated method stub
 		try {
 			connect();
@@ -96,8 +96,9 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 		stmt.executeUpdate();
 		ResultSet rs = stmt.getGeneratedKeys();
 		rs.next();
+		movie.setId(rs.getInt(1));
 		System.out.println("Saved");
-		return rs.getInt(1);
+		return movie;
 	}
 	
 	// Change to TreeSet
@@ -117,6 +118,9 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 			Movie movie = new Movie(rs.getString("NAME"), rs.getString("GENRE"), rs.getString("movie_id"),
 					rs.getBoolean("availability"), rs.getDate("next_available_time"));
 			movie.setId(rs.getInt("ID"));
+			if(movie.getNext_available_time() != null) {
+				movie.setLocalDate();
+			}
 			movies.add(movie);
 		}
 		return movies;
@@ -260,7 +264,7 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 }
 
 interface MovieDAOInterface {
-	public int save(Movie movie) throws SQLException;
+	public Movie save(Movie movie) throws SQLException;
 	
 	public TreeSet<Movie> findAll() throws SQLException;
 	

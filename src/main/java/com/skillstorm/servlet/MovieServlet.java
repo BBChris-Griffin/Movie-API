@@ -52,7 +52,9 @@ public class MovieServlet extends HttpServlet{
 		ObjectMapper mapper = new ObjectMapper();
 		Movie movie = mapper.readValue(req.getInputStream(), Movie.class);
 		try(MovieDAO dao = new MovieDAO()) {
-			dao.save(movie);
+			Movie newMovie = dao.save(movie);
+			String json = mapper.writeValueAsString(newMovie);
+			resp.getWriter().print(json);
 			resp.setStatus(201);
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -65,8 +67,9 @@ public class MovieServlet extends HttpServlet{
 				req.getParameter("next_available_time") == null) {
 			int id = Integer.valueOf(req.getParameter("id"));
 			try(MovieDAO dao = new MovieDAO()) {
-				dao.movieReturned(id);
+				int i = dao.movieReturned(id);
 				resp.setStatus(201);
+				resp.getWriter().print(i);
 			} catch(Exception e) {
 				e.printStackTrace();
 			}		

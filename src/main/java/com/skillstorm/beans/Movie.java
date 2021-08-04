@@ -1,6 +1,10 @@
 package com.skillstorm.beans;
 
 import java.sql.Date;
+import java.text.DateFormat;
+import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.Locale;
 import java.util.Objects;
 
 public class Movie implements Comparable<Movie>{
@@ -10,6 +14,7 @@ public class Movie implements Comparable<Movie>{
 	private String movie_id;
 	private boolean availability;
 	private Date next_available_time;
+	private int nat;
 	
 	// Make a hashcode, equals, and implement Comparable for compareTo function
 	
@@ -24,6 +29,15 @@ public class Movie implements Comparable<Movie>{
 		this.availability = availability;
 		this.next_available_time = next_available_time;
 	}
+	
+//	public Movie(String name, String genre, String movie_id, boolean availability, Calendar next_available_time) {
+//		super();
+//		this.name = name;
+//		this.genre = genre;
+//		this.movie_id = movie_id;
+//		this.availability = availability;
+//		this.nat = next_available_time;
+//	}
 	public int getId() {
 		return id;
 	}
@@ -59,6 +73,14 @@ public class Movie implements Comparable<Movie>{
 	}
 	public void setNext_available_time(Date next_available_time) {
 		this.next_available_time = next_available_time;
+	}
+
+	public void setLocalDate() {
+		//this.next_available_time;
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(this.next_available_time);
+		//nat = calendar.getDisplayName(Calendar.DATE, Calendar.LONG, Locale.getDefault());
+		nat = Calendar.MONTH;
 	}
 	@Override
 	public String toString() {

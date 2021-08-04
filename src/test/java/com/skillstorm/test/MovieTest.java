@@ -123,8 +123,8 @@ public class MovieTest {
 			rs.next();
 			int expected = rs.getInt(1);
 			
-			int actual = dao.save(new Movie("Django Unchained", "Western", "451-453", true, null));
-			assertEquals(expected, --actual);
+			Movie actual = dao.save(new Movie("Django Unchained", "Western", "451-453", true, null));
+			assertEquals(expected, actual.getId() - 1);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

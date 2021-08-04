@@ -2,54 +2,159 @@
 <html>
     <head>
         <!-- metadata -->
-        <title>Hello Ajax</title>
+        <title>Blockbuster 2021</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="styles.css">
     </head>
+    <style>
+        body {
+            background-color: yellow;
+        }
+        /* @include media-breakpoint-up(md) {
+            #bb-photo {
+                display: block;
+            }
+        } */
+
+        /* @media (max-width: 991.98px) {
+            #bb-photo {
+                display: block;
+            }
+        } */
+    </style>
     <body>
-        <h1>Hello Ajax</h1>
-        <a href="http://www.google.com">Google it</a>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">BlockBuster</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-        <form id="add-movie-form" method="post" action="/movie-api/movies">
-            <div><label for="movie-name">Movie Name</label><input type="text" id="movie-name" name="movie-name"/></div>
-            <div><label for="movie-genre">Movie Genre</label><input type="text" id="movie-genre" name="movie-genre"/></div>
-            <div><input type="submit" id="add-movie" vakue="Add Movie"/></div>
-        </form>
+            <div class="collapse navbar-collapse" id="movie-search">
+                <form class="form-inline my-2 my-lg-0">
+                <input class="form-control mr-sm-2" id="search-name" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success my-2 my-sm-0" id="search-button" type="submit">Search</button>
+                </form>
+            </div>
+        </nav>
+        <div class="container-fluid" style="background-color:blue">
+        <img src="Blockbuster_logo.svg.png" alt="Blockbuster">
 
-        <table id="movie_table">
-            <tr>
-                <th>ID</th><th>Movie Name</th>
-            </tr>
-            <tr>
-                <td>id..</td><td>name..</td>
-            </tr>
-        </table>
+        <!-- <div id="bb-photo" class ="table col-lg-4">
+            <table>
+                <tr><img src="blockbuster.jpg" alt="Blockbuster Location"></tr>
+            </table>
+        </div> -->
+        <div class="row" style="background-color: gold;">
+            <div class="table table-dark table-bordered table-striped col-lg-12" >
+                <table id="movie_table" class="center">
+                    <tr>
+                        <th>ID</th><th>Movie</th><th>Genre</th><th>Movie ID#</th><th>Availability</th><th>Next Time Available</th><th>Rent/Return</th>
+                    </tr>
+                </table>
+            </div>      
+        </div>  
+        <div style="background-color:blue;" >
+            <h2 style="color: gold;">Want to Donate a Movie? Add Below!</h2>
+            <form id="add-movie-form" method="post" action="/movie-api/movies">
+                <div><label for="movie-name" style="color: gold;">Movie Name</label><input type="text" id="movie-name" name="movie-name"/></div>
+                <div><label for="movie-genre" style="color: gold;">Movie Genre</label><input type="text" id="movie-genre" name="movie-genre"/></div>
+                <div><input type="submit" id="add-movie" value="Add Movie" class="btn btn-success"/></div>
+            </form>
+        </div>
+
+        <div class="modal fade" id="confirm-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <h6 id="movie-change">...</h6>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+        </div>
     </body>
     <script type="text/javascript">
 
+        document.getElementById('movie-search').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var name_in_search = document.getElementById('search-name').value;
+            let xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState === 4) {
+                    /*if(xhr.status == 500) {
+                        var text = document.getElementById('movie-change');
+                        text.innerText = "Sorry. The movie doesn't exist."
+                        $('#confirm-modal').modal(focus)
+                    } else {*/
+                        console.log('Success!');
+                        var isAvailable = JSON.parse(xhr.responseText);
+                        var text = document.getElementById('movie-change');
+                        if(isAvailable) {
+                            text.innerText = "The Movie is available!";
+                        } else {
+                            text.innerText = "Sorry. The movie isn't available.";
+
+                        }
+                        $('#confirm-modal').modal(focus)
+                    //}  
+                }
+            }
+            xhr.open('GET', 'http://localhost:8080/movie-api/movies' +  "?name=" + name_in_search);
+            xhr.send();
+
+        })
+
         document.getElementById('add-movie-form').addEventListener('submit', function(event){
             event.preventDefault();
-            var name_on_form = document. getElementById('movie-name').value;
-            var genre_on_form = document.getElementById('movie-genre').vaue;
+            var name_on_form = document.getElementById('movie-name').value;
+            var genre_on_form = document.getElementById('movie-genre').value;
+            var movie_id1 = Math.random() * (9999 - 1000) + 1000;
+            var movie_id2 = Math.random() * (9999 - 1000) + 1000;
+            var movie_id = movie_id1 + "-" + movie_id2;
+            var movie_available = true;
+            var movie_nat = null;
+            console.log(name_on_form)
+            console.log(genre_on_form)
 
             var movie = {
                 name: name_on_form,
-                genre: genre_on_form
-            }
+                genre: genre_on_form,
+                movie_id: movie_id,
+                availability: movie_available,
+                next_available_time: movie_nat
+            };
 
-            var xhr = new XMLHttpRequest();
+            console.log(name)
+            console.log(movie.genre)
+
+            let xhr = new XMLHttpRequest();
             xhr.onreadystatechange = function(){
                 if(xhr.readyState === 4 && xhr.status === 201) {
                     console.log('Success!');
                     var updatedMovie = JSON.parse(xhr.responseText);
                     addMoviestoTable(updatedMovie);
+                    var text = document.getElementById('movie-change');
+                    text.innerText = "Thanks for the Submission!";
+                    $('#confirm-modal').modal(focus)
                 }
             }
-            xhr.open('POST', 'movie_api/movies');
-            xhr.send(movie);
+            xhr.open('POST', 'http://localhost:8080/movie-api/movies');
+            xhr.send(JSON.stringify(movie));
         });
         // Ajax -asynchronous javascript and XML
         // XHR
         // closure
-        window.onload = function(){
+        function getTable(){
             // 1. Make an xhr object
             let xhr = new XMLHttpRequest();
             // let is within blocks, var is gloabl
@@ -57,11 +162,13 @@
             xhr.onreadystatechange = function(response){
                 if(xhr.readyState === 4) {
                     var movieArray = JSON.parse(xhr.responseText);
-                    console.log(movieArray)
                     //dom manipulation code
-                    for(let movie in movieArray) {
-                        addMoviestoTable(movie);
-                    }
+
+                    let idNum = 1;
+                    movieArray.forEach(movie => {
+                        addMoviestoTable(movie, idNum);
+                        idNum += 1;
+                    })
 
                     //forEach instead... Check video
                 }
@@ -71,17 +178,146 @@
             xhr.open("GET", "http://localhost:8080/movie-api/movies");
             // 4. send the ajax call
             xhr.send();
-        }
+        };
 
-        function addMoviestoTable(movie) {
+        window.onload = getTable();
+
+        function addMoviestoTable(movie, idNum) {
             var tr = document.createElement('tr')
             var id = document.createElement('td')
             var name = document.createElement('td')
+            var genre = document.createElement('td')
+            var movie_id = document.createElement('td')
+            var availability = document.createElement('td')
+            var next_available_time = document.createElement('td')
+            var returnButton = document.createElement('button')
+            var rentForm = document.createElement('form')
+            var rentDate = document.createElement('input')
+            var rentButton = document.createElement('input')
+            var deleteButton = document.createElement('button')
             // ...
             id.innerText = movie.id; // properties of JSON object
             name.innerText = movie.name; // store in HTML tag value
+            genre.innerText = movie.genre;
+            movie_id.innerText = movie.movie_id;
+            availability.innerText = movie.availability;
+            availability.id = "available " + idNum;
+            if(movie.next_available_time != null) {
+                next_available_time.innerText = new Date(movie.next_available_time);
+            } else {
+                next_available_time.innerText = movie.next_available_time;
+            }
+            next_available_time.id = "nat " + idNum;
+
+            // Return Button
+            returnButton.innerHTML = "Return";
+            returnButton.type = "submit";
+            returnButton.name = "return-button";
+            returnButton.id = "return-button";
+            returnButton.className = 'btn btn-primary';
+            returnButton.value = idNum;
+            returnButton.addEventListener("click", function(event) {
+                console.log('Called!');
+                event.preventDefault();
+                var returnID = movie.id;
+                let xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function(){
+                    if(xhr.readyState === 4 && xhr.status === 201) {
+                        console.log('Success!' + xhr.responseText);
+                        var availableCol = document.getElementById("available " + idNum);
+                        availableCol.innerText = true;
+                        var natCol = document.getElementById("nat " + idNum);
+                        natCol.innerText = null;
+                        returnButton.remove();
+                        var text = document.getElementById('movie-change');
+                        text.innerText = "Thank You for Returning the Movie!";
+                        $('#confirm-modal').modal(focus)
+                    }
+                }
+                xhr.open("PUT", "http://localhost:8080/movie-api/movies" + "?id=" + returnID);
+                xhr.send(null);
+            })
+
+            // Rent Button
+            rentForm.setAttribute("method", "put")
+            rentForm.setAttribute("action", "/movie-api/movies")
+            rentDate.setAttribute("input", "text")
+            rentDate.setAttribute("id", "rent-date" + idNum)
+            rentDate.setAttribute("name", "rent-date")
+            rentButton.setAttribute("type", "submit")
+            //rentButton.setAttribute("id", "rent-movie")
+            rentButton.setAttribute("value", "Rent")
+            rentButton.innerHTML = "Rent"
+            rentButton.id = idNum
+            rentButton.className = 'btn btn-primary';
+            rentDate.placeholder = "yyyy-mm-dd";
+            rentForm.appendChild(rentDate)
+            rentForm.appendChild(rentButton)
+            rentButton.addEventListener('click', function(event) {
+                event.preventDefault();
+                var rentID = movie.id;
+                var rentDateVal = rentDate.value;
+                let xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function(){
+                    if(xhr.readyState === 4 && xhr.status === 201) {
+                        console.log('Success!');
+                        console.log(xhr.responseText);
+                        var availableCol = document.getElementById("available " + idNum);
+                        availableCol.innerText = false;
+                        var natCol = document.getElementById("nat " + idNum);
+                        natCol.innerText = rentDateVal;
+                        rentButton.remove();
+                        rentDate.remove();
+                        var row = document.getElementById('movie_table').rowIndex;
+                        var text = document.getElementById('movie-change');
+                        text.innerText = "Enjoy Your New Movie!";
+                        $('#confirm-modal').modal(focus)
+                    }
+                }
+                xhr.open("PUT", "http://localhost:8080/movie-api/movies" + "?id=" + rentID + "&next_available_time=" + rentDateVal);
+                xhr.send(null);
+            })
+
+            deleteButton.innerHTML = "Delete";
+            deleteButton.type = "submit";
+            deleteButton.name = "delete-button";
+            deleteButton.id = "delete-button";
+            deleteButton.className = 'btn btn-danger';
+            deleteButton.value = movie.id;
+            deleteButton.addEventListener("click", function(event) {
+                event.preventDefault();
+                console.log(deleteButton.value);
+                var deleteID = movie.id;
+                var deleteRow = idNum;
+                let xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function(){
+                    if(xhr.readyState === 4) {
+                        console.log('Success!');
+                        let index = deleteButton.parentElement.rowIndex;
+                        console.log(index)
+                        document.getElementById('movie_table').deleteRow(index);
+                        var text = document.getElementById('movie-change');
+                        text.innerText = "Movie Successfully Removed!";
+                        $('#confirm-modal').modal(focus)
+                    }
+                }
+                xhr.open("DELETE", "http://localhost:8080/movie-api/movies" + "?id=" + deleteID);
+                xhr.send(null);
+            })
+
             tr.appendChild(id)
             tr.appendChild(name)
+            tr.appendChild(genre)
+            tr.appendChild(movie_id)
+            tr.appendChild(availability)
+            tr.appendChild(next_available_time)
+            if(movie.availability == false) {
+                tr.appendChild(returnButton);
+            } else {
+                tr.appendChild(rentDate);
+                tr.appendChild(rentButton);
+            }
+            tr.appendChild(deleteButton);
             document.getElementById('movie_table').appendChild(tr);
         }
     </script>
