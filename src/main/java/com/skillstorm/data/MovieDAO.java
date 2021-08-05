@@ -51,6 +51,8 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 //			Date.valueOf("2021-07-30");
 			//dao.movieRented(106, Date.valueOf("2021-07-30"));
 			//System.out.println("deleted");
+			//dao.updateMovieName(1, "The Irishmen");
+			//dao.updateMovieGenre(1, "Crime");
 		} catch (Exception e) {
 			System.out.println("Failed");
 			e.printStackTrace();
@@ -60,9 +62,7 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 	
 	private Connection connection;
 	
-	public MovieDAO() {
-		
-	}
+	public MovieDAO() {}
 	
 	public Connection getConnection() {
 		return connection;
@@ -170,18 +170,33 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 	}
 
 	@Override
-	public boolean update() throws SQLException {
+	public int updateMovieName(int id, String name) throws SQLException {
 		// TODO Auto-generated method stub
 		try {
 			connect();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		String sql = "UPDATE MOVIE SET NEXT_AVAILABLE_TIME = NULL WHERE AVAILABILITY = ?";
+		String sql = "UPDATE MOVIE SET NAME = ? WHERE ID = ?";
 		PreparedStatement stmt = connection.prepareStatement(sql);
-		stmt.setBoolean(1, true);
-		int success = stmt.executeUpdate();
-		return success > 0 ? true : false;
+		stmt.setString(1, name);
+		stmt.setInt(2, id);
+		return stmt.executeUpdate();
+	}
+	
+	@Override
+	public int updateMovieGenre(int id, String genre) throws SQLException {
+		// TODO Auto-generated method stub
+		try {
+			connect();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		String sql = "UPDATE MOVIE SET GENRE = ? WHERE ID = ?";
+		PreparedStatement stmt = connection.prepareStatement(sql);
+		stmt.setString(1, genre);
+		stmt.setInt(2, id);
+		return stmt.executeUpdate();
 	}
 
 	@Override
@@ -250,7 +265,6 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 		return success > 0 ? true : false;
 	}
 
-	// Sends wrong date...!
 	@Override
 	public int movieRented(int id, Date date) throws SQLException {
 		// TODO Auto-generated method stub
@@ -279,7 +293,9 @@ interface MovieDAOInterface {
 	
 	public int delete(int id) throws SQLException;
 	
-	public boolean update() throws SQLException;
+	public int updateMovieName(int id, String name) throws SQLException;
+	
+	public int updateMovieGenre(int id, String genre) throws SQLException;
 	
 	public int movieReturned(int id) throws SQLException;
 	

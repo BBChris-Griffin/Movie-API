@@ -12,17 +12,6 @@
         body {
             background-color: gold;
         }
-        /* @include media-breakpoint-up(md) {
-            #bb-photo {
-                display: block;
-            }
-        } */
-
-        /* @media (max-width: 991.98px) {
-            #bb-photo {
-                display: block;
-            }
-        } */
     </style>
     <body>
         <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
@@ -46,11 +35,6 @@
         <div class="container-fluid" style="background-color:blue">
         <img src="Blockbuster_logo.svg.png" alt="Blockbuster">
 
-        <!-- <div id="bb-photo" class ="table col-lg-4">
-            <table>
-                <tr><img src="blockbuster.jpg" alt="Blockbuster Location"></tr>
-            </table>
-        </div> -->
         <div class="row" style="background-color: gold;">
             <div class="table table-dark table-bordered table-striped col-lg-12" >
                 <table id="movie_table" class="center">
@@ -62,7 +46,7 @@
         </div>  
         <a name="add-form">
             <div style="background-color:blue;" class="container-fluid">
-                <div="row">
+                <div="row" class="col-lg-6">
                     <h2 style="color: gold;">Want to Donate a Movie? Add Below!</h2>
                 </div>
                 <div="row">
@@ -117,6 +101,8 @@
                             }
                         }
                         var text = document.getElementById('movie-change');
+                        console.log(movieArray.length)
+                        
                         if(isAvailable) {
                             text.innerText = "Hooray! The movie is available at ID(s)";
                             movieArray.forEach(movie => {
@@ -126,7 +112,17 @@
                             })
                             text.innerText += "!";
                         } else {
-                            text.innerText = "Sorry. The movie isn't available.";
+                            text.innerText = "Sorry. The movie isn't available. However, the ID(s) is";
+                            movieArray.forEach(movie => {
+                                if(movie.availability == false) {
+                                    text.innerText += " [" + movie.id + "]";
+                                }
+                            })
+                            text.innerText += ".";
+                        }
+
+                        if(movieArray.length === 0) {
+                            text.innerText = "Sorry. We do not have this movie.";
                         }
                         $('#confirm-modal').modal(focus)
                         document.getElementById("search-form").reset();
@@ -176,6 +172,7 @@
             xhr.open('POST', 'http://localhost:8080/movie-api/movies');
             xhr.send(JSON.stringify(movie));
         });
+
         // Ajax -asynchronous javascript and XML
         // XHR
         // closure
@@ -189,13 +186,11 @@
                     var movieArray = JSON.parse(xhr.responseText);
                     //dom manipulation code
 
-                    let idNum = 1;
+                    var rowNum = 1;
                     movieArray.forEach(movie => {
-                        addMoviestoTable(movie, idNum);
-                        idNum += 1;
+                        addMoviestoTable(movie, rowNum);
+                        rowNum += 1;
                     })
-
-                    //forEach instead... Check video
                 }
             }
             // 3. open the xhr call
@@ -207,7 +202,7 @@
 
         window.onload = getTable();
 
-        function addMoviestoTable(movie, idNum) {
+        function addMoviestoTable(movie, rowNum) {
             var tr = document.createElement('tr')
             var id = document.createElement('td')
             var name = document.createElement('td')
@@ -226,13 +221,74 @@
             genre.innerText = movie.genre;
             movie_id.innerText = movie.movie_id;
             availability.innerText = movie.availability;
-            availability.id = "available " + idNum;
+            availability.id = "available " + rowNum;
             if(movie.next_available_time != null) {
-                next_available_time.innerText = new Date(movie.next_available_time);
+                next_available_time.innerText = new Date(movie.next_available_time).toDateString();
             } else {
                 next_available_time.innerText = movie.next_available_time;
             }
-            next_available_time.id = "nat " + idNum;
+            next_available_time.id = "nat " + rowNum;
+
+            //Editing Name and Genre
+            name.addEventListener('click', function(e){
+                var target = e.target;
+                //test if clicked element is TD.
+                if (target && target.tagName && target.tagName.toLowerCase() == "td")
+                {
+                    //make cell editable
+                    target.setAttribute('contenteditable', 'true');
+                    let originalValue = name.innerText;
+                    //on blur close the editable field and return to normal cell.
+                    target.onblur = function(){
+                        let xhr = new XMLHttpRequest();
+                        let id = movie.id;
+                        xhr.onreadystatechange = function(){
+                            if(xhr.readyState === 4 && xhr.status === 200) {
+                                console.log('Success!');
+                                var text = document.getElementById('movie-change');
+                                text.innerText = "Thank You for the Update!";
+                                $('#confirm-modal').modal(focus)
+                            }
+                        }
+                        if(originalValue !== name.innerText) {
+                            console.log("here");
+                            xhr.open("PUT", "http://localhost:8080/movie-api/movies" + "?id=" + id + "&name=" + name.innerText);
+                            xhr.send(null);
+                        }
+                        
+                        this.removeAttribute('contenteditable');
+                    }
+                }
+            })
+
+            genre.addEventListener('click', function(e){
+                var target = e.target;
+                //test if clicked element is TD.
+                if (target && target.tagName && target.tagName.toLowerCase() == "td")
+                {
+                    //make cell editable
+                    target.setAttribute('contenteditable', 'true');
+                    let originalValue = genre.innerText;
+                    //on blur close the editable field and return to normal cell.
+                    target.onblur = function(){
+                        let xhr = new XMLHttpRequest();
+                        let id = movie.id;
+                        xhr.onreadystatechange = function(){
+                            if(xhr.readyState === 4 && xhr.status === 200) {
+                                console.log('Success!');
+                                var text = document.getElementById('movie-change');
+                                text.innerText = "Thank You for the Update!";
+                                $('#confirm-modal').modal(focus)
+                            }
+                        }
+                        if(originalValue !== genre.innerText) {
+                            xhr.open("PUT", "http://localhost:8080/movie-api/movies" + "?id=" + id + "&genre=" + genre.innerText);
+                            xhr.send(null);
+                        }
+                        this.removeAttribute('contenteditable');
+                    }
+                }
+            })
 
             // Return Button
             returnButton.innerHTML = "Return";
@@ -240,18 +296,18 @@
             returnButton.name = "return-button";
             returnButton.id = "return-button";
             returnButton.className = 'btn btn-primary';
-            returnButton.value = idNum;
+            returnButton.value = rowNum;
             returnButton.addEventListener("click", function(event) {
                 console.log('Called!');
                 event.preventDefault();
                 var returnID = movie.id;
                 let xhr = new XMLHttpRequest();
                 xhr.onreadystatechange = function(){
-                    if(xhr.readyState === 4 && xhr.status === 201) {
+                    if(xhr.readyState === 4 && xhr.status === 200) {
                         console.log('Success!');
-                        var availableCol = document.getElementById("available " + idNum);
+                        var availableCol = document.getElementById("available " + rowNum);
                         availableCol.innerText = true;
-                        var natCol = document.getElementById("nat " + idNum);
+                        var natCol = document.getElementById("nat " + rowNum);
                         natCol.innerText = null;
                         returnButton.remove();
                         var text = document.getElementById('movie-change');
@@ -267,13 +323,12 @@
             rentForm.setAttribute("method", "put")
             rentForm.setAttribute("action", "/movie-api/movies")
             rentDate.setAttribute("input", "text")
-            rentDate.setAttribute("id", "rent-date" + idNum)
+            rentDate.setAttribute("id", "rent-date" + rowNum)
             rentDate.setAttribute("name", "rent-date")
             rentButton.setAttribute("type", "submit")
-            //rentButton.setAttribute("id", "rent-movie")
             rentButton.setAttribute("value", "Rent")
             rentButton.innerHTML = "Rent"
-            rentButton.id = idNum
+            rentButton.id = rowNum
             rentButton.className = 'btn btn-primary';
             rentDate.placeholder = "yyyy-mm-dd";
             rentForm.appendChild(rentDate)
@@ -284,12 +339,15 @@
                 var rentDateVal = rentDate.value;
                 let xhr = new XMLHttpRequest();
                 xhr.onreadystatechange = function(){
-                    if(xhr.readyState === 4 && xhr.status === 201) {
+                    if(xhr.readyState === 4 && xhr.status === 200) {
                         console.log('Success!');
-                        var availableCol = document.getElementById("available " + idNum);
+                        var availableCol = document.getElementById("available " + rowNum);
                         availableCol.innerText = false;
-                        var natCol = document.getElementById("nat " + idNum);
-                        natCol.innerText = rentDateVal;
+                        var natCol = document.getElementById("nat " + rowNum);
+                        let date = new Date(rentDateVal);
+                        // Returns previous day otherwise. Does not affect database.
+                        date.setDate(date.getDate() + 1);
+                        natCol.innerText = date.toDateString()
                         rentButton.remove();
                         rentDate.remove();
                         var row = document.getElementById('movie_table').rowIndex;
@@ -312,7 +370,7 @@
                 event.preventDefault();
                 console.log(deleteButton.value);
                 var deleteID = movie.id;
-                var deleteRow = idNum;
+                var deleteRow = rowNum;
                 let xhr = new XMLHttpRequest();
                 xhr.onreadystatechange = function(){
                     if(xhr.readyState === 4) {

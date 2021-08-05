@@ -70,7 +70,6 @@ public class MovieServlet extends HttpServlet{
 			int id = Integer.valueOf(req.getParameter("id"));
 			try(MovieDAO dao = new MovieDAO()) {
 				int i = dao.movieReturned(id);
-				resp.setStatus(201);
 				resp.getWriter().print(i);
 			} catch(Exception e) {
 				e.printStackTrace();
@@ -80,11 +79,28 @@ public class MovieServlet extends HttpServlet{
 				int id = Integer.valueOf(req.getParameter("id"));
 				Date date = Date.valueOf(req.getParameter("next_available_time"));
 				dao.movieRented(id, date);
-				resp.setStatus(201);
 			} catch(Exception e) {
 				e.printStackTrace();
 			}		
-		}
+		} 
+		
+		if(req.getParameter("id") != null && req.getParameter("name") != null) {
+			try(MovieDAO dao = new MovieDAO()) {
+				int id = Integer.valueOf(req.getParameter("id"));
+				String name = String.valueOf(req.getParameter("name"));
+				dao.updateMovieName(id, name);
+			} catch(Exception e) {
+				e.printStackTrace();
+			}		
+		} else if(req.getParameter("id") != null && req.getParameter("genre") != null) {
+			try(MovieDAO dao = new MovieDAO()) {
+				int id = Integer.valueOf(req.getParameter("id"));
+				String genre = String.valueOf(req.getParameter("genre"));
+				dao.updateMovieGenre(id, genre);
+			} catch(Exception e) {
+				e.printStackTrace();
+			}		
+		} 
 		
 	}
 	

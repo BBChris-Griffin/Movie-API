@@ -27,8 +27,8 @@ public class MovieTest {
 	private static String username = "root";
 	private static String password = "root";
 	
-	@BeforeClass
-	public static void setup() {
+	@Before
+	public void setup() {
 		try {
 			Connection conn = DriverManager.getConnection(url, username, password);
 			// Creating Table
@@ -45,26 +45,36 @@ public class MovieTest {
 			
 			// Making Rows
 			sql = "insert into movie (id, name, genre, movie_id, availability, next_available_time) values "
-					+ "(1, 'Drunken Master', 'Kung-Fu|Comedy', '0007-4205', true, null);";
+					+ "(1, 'Drunken Master', 'Kung-Fu|Comedy', '0007-4205', false, '2021-08-01');";
 			stmt = conn.createStatement();
 			stmt.execute(sql);
 			stmt.execute("insert into movie (id, name, genre, movie_id, availability, next_available_time) values "
-					+ "(2, 'Way Of the Dragon', 'Kung-Fu|Comedy', '1200-4205', false, '2021-08-01')");
+					+ "(2, 'Police Story', 'Kung-Fu|Comedy', '1200-4205', false, '2021-08-01')");
 			stmt.execute("insert into movie (id, name, genre, movie_id, availability, next_available_time) values "
-					+ "(3, 'Ip Man', 'Kung-Fu|Drama', '1340-4205', false, '2021-08-28')");
+					+ "(3, 'Ip Man', 'Kung-Fu|Drama', '1340-4205', true, null)");
 			stmt.execute("insert into movie (id, name, genre, movie_id, availability, next_available_time) values "
-					+ "(4, 'Ong Bak', 'Kung-Fu', '1204-4205', false, '2021-08-09')");
-			stmt.execute("insert into movie (id, name, genre, movie_id, availability, next_available_time) values "
-					+ "(5, 'Kill Bill', 'Kung-Fu', '1350-4205', false, '2021-08-18')");
-			stmt.execute("insert into movie (id, name, genre, movie_id, availability, next_available_time) values "
-					+ "(6, 'Police Story', 'Kung-Fu|Comedy', '1200-1205', true, null)");
-			stmt.execute("insert into movie (id, name, genre, movie_id, availability, next_available_time) values "
-					+ "(7, 'Chocolate', 'Kung-Fu|Drama', '7410-4205', true, null)");
+					+ "(4, 'Ong Bak', 'Kung-Fu', '1204-4205', true, null)");
+//			stmt.execute("insert into movie (id, name, genre, movie_id, availability, next_available_time) values "
+//					+ "(5, 'Kill Bill', 'Kung-Fu', '1350-4205', false, '2021-08-18')");
+//			stmt.execute("insert into movie (id, name, genre, movie_id, availability, next_available_time) values "
+//					+ "(6, 'Police Story', 'Kung-Fu|Comedy', '1200-1205', true, null)");
+//			stmt.execute("insert into movie (id, name, genre, movie_id, availability, next_available_time) values "
+//					+ "(7, 'Chocolate', 'Kung-Fu|Drama', '7410-4205', true, null)");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
+	
+//	@Before
+//	public void slowDown() {
+//		try {
+//			Thread.sleep(5000);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	}
 	
 	// GET
 	@Test
@@ -86,6 +96,8 @@ public class MovieTest {
 			
 			actual = dao.findAll();
 			assertEquals(expected, actual);
+			System.out.println("GET - Test FindAll Finished");
+			Thread.sleep(10000);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -100,8 +112,13 @@ public class MovieTest {
 			String sql = "SELECT AVAILABILITY FROM MOVIE WHERE NAME = 'Drunken Master'";
 			Statement stmt = conn.createStatement();
 			ResultSet rs = stmt.executeQuery(sql);
-			rs.next();
-			boolean expected = rs.getBoolean(1);
+			boolean expected = false;
+			while(rs.next()) {
+				if(rs.getBoolean(1) == true) {
+					expected = rs.getBoolean(1);
+					break;
+				}
+			}
 			
 			List<Movie> movies = dao.findByName("Drunken Master");
 			boolean actual = false;
@@ -112,6 +129,8 @@ public class MovieTest {
 				}
 			}
 			assertEquals(expected, actual);
+			System.out.println("GET - Test Availability Finished");
+			Thread.sleep(10000);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -123,15 +142,17 @@ public class MovieTest {
 		try {
 			Connection conn = DriverManager.getConnection(url, username, password);
 			String sql = "INSERT INTO MOVIE (NAME, GENRE, MOVIE_ID, AVAILABILITY, NEXT_AVAILABLE_TIME)  \r\n"
-					+ "VALUES ('Pulp Fiction', 'Crime', '3548-7412', false, '2021-08-11')";
+					+ "VALUES ('Way of the Dragon', 'Kung-Fu|Comedy', '3548-7412', false, '2021-08-11')";
 			Statement stmt = conn.createStatement();
 			stmt.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
 			ResultSet rs = stmt.getGeneratedKeys();
 			rs.next();
 			int expected = rs.getInt(1);
 			
-			Movie actual = dao.save(new Movie("Django Unchained", "Western", "451-453", true, null));
+			Movie actual = dao.save(new Movie("Fists of Fury", "Kung-Fu|Drama", "451-453", true, null));
 			assertEquals(expected, actual.getId() - 1);
+			System.out.println("ADD - Test Create Finished");
+			Thread.sleep(10000);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -142,14 +163,15 @@ public class MovieTest {
 	public void Delete() {
 		try {
 			Connection conn = DriverManager.getConnection(url, username, password);
-			String sql = "DELETE FROM Movie WHERE ID = 2";
+			String sql = "DELETE FROM Movie WHERE ID = 1";
 			Statement stmt = conn.createStatement();
 			int expected = stmt.executeUpdate(sql);
 			System.out.println(expected);
 
-			int actual = dao.delete(3);
-			System.out.println(actual);
+			int actual = dao.delete(2);
 			assertEquals(expected, actual);
+			System.out.println("DELETE - Test Delete Finished");
+			Thread.sleep(10000);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -161,12 +183,14 @@ public class MovieTest {
 		try {
 			Connection conn = DriverManager.getConnection(url, username, password);
 			String sql = "UPDATE MOVIE SET AVAILABILITY = true, NEXT_AVAILABLE_TIME = null"
-					+ " WHERE ID = 4";
+					+ " WHERE ID = 1";
 			Statement stmt = conn.createStatement();
 			int expected = stmt.executeUpdate(sql);
 
-			int actual = dao.movieReturned(5);
+			int actual = dao.movieReturned(2);
 			assertEquals(expected, actual);
+			System.out.println("PUT - Test Return Finished");
+			Thread.sleep(10000);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -178,19 +202,57 @@ public class MovieTest {
 		try {
 			Connection conn = DriverManager.getConnection(url, username, password);
 			String sql = "UPDATE MOVIE SET AVAILABILITY = false, NEXT_AVAILABLE_TIME = '2021-08-20'"
-					+ " WHERE ID = 6";
+					+ " WHERE ID = 3";
 			Statement stmt = conn.createStatement();
 			int expected = stmt.executeUpdate(sql);
 
-			int actual = dao.movieRented(7, Date.valueOf("2021-09-30"));
+			int actual = dao.movieRented(4, Date.valueOf("2021-09-30"));
 			assertEquals(expected, actual);
+			System.out.println("PUT - Test Rent Finished");
+			Thread.sleep(10000);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	@AfterClass
-	public static void cleanup() {
+	// PUT
+	@Test
+	public void updateMovieName() {
+		try {
+			Connection conn = DriverManager.getConnection(url, username, password);
+			String sql = "UPDATE MOVIE SET NAME = 'Drunken Master 2' WHERE ID = 1";
+			Statement stmt = conn.createStatement();
+			int expected = stmt.executeUpdate(sql);
+			
+			int actual  = dao.updateMovieName(2, "Police Story 2");
+			assertEquals(expected, actual);
+			System.out.println("PUT - Test UpdateName Finished");
+			Thread.sleep(10000);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	// PUT
+	@Test
+	public void updateMovieGenre() {
+		try {
+			Connection conn = DriverManager.getConnection(url, username, password);
+			String sql = "UPDATE MOVIE SET GENRE = 'New Genre' WHERE ID = 1";
+			Statement stmt = conn.createStatement();
+			int expected = stmt.executeUpdate(sql);
+			
+			int actual  = dao.updateMovieGenre(2, "New Genre");
+			assertEquals(expected, actual);
+			System.out.println("PUT - Test UpdateGenre Finished");
+			Thread.sleep(10000);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@After
+	public void cleanup() {
 		try {
 			Connection conn = DriverManager.getConnection(url, username, password);
 			String sql = "DROP TABLE movie";
