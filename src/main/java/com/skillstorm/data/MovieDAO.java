@@ -18,47 +18,6 @@ import com.mysql.cj.x.protobuf.MysqlxSql.StmtExecute;
 import com.skillstorm.beans.Movie;
 
 public class MovieDAO implements MovieDAOInterface, AutoCloseable{
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		try(MovieDAO dao = new MovieDAO()) {
-			//Movie movie = new Movie("Police Story", "Kung-Fu", "451-453", true, null);
-			//dao.save(movie);
-			//Movie movie = dao.findFirst();
-			TreeSet<Movie> movies = dao.findAll();
-//			for(int i = 0; i < movies.size(); i++) {
-//				System.out.println(movies.get(i).getName());
-//			}
-			//dao.delete("ID", 100);
-			//dao.update();
-			//System.out.println(dao.isAvailable("Spirited Away"));
-			//dao.movieReturned(87);
-//			String string_date = "30-July-2021";
-//
-//			SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
-//			Date d = null;
-//			try {
-//			    d = (Date) f.parse(string_date);
-//			    //long rented = d.getTime();
-//			} catch (ParseException e) {
-//			    e.printStackTrace();
-//			}
-//			dao.movieRented(1, d);
-
-//			Calendar cal;
-//			//cal.
-//			Date date;
-//			date.setYear(2021);
-//			Date.valueOf("2021-07-30");
-			//dao.movieRented(106, Date.valueOf("2021-07-30"));
-			//System.out.println("deleted");
-			//dao.updateMovieName(1, "The Irishmen");
-			//dao.updateMovieGenre(1, "Crime");
-		} catch (Exception e) {
-			System.out.println("Failed");
-			e.printStackTrace();
-		}
-		
-	}
 	
 	private Connection connection;
 	
@@ -118,9 +77,6 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 			Movie movie = new Movie(rs.getString("NAME"), rs.getString("GENRE"), rs.getString("movie_id"),
 					rs.getBoolean("availability"), rs.getDate("next_available_time"));
 			movie.setId(rs.getInt("ID"));
-			if(movie.getNext_available_time() != null) {
-				movie.setLocalDate();
-			}
 			movies.add(movie);
 		}
 		return movies;
@@ -207,7 +163,6 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		//String sql = "SELECT AVAILABILITY, NEXT_AVAILABLE_TIME FROM MOVIE WHERE NAME = ?";
 		String sql = "SELECT * FROM MOVIE WHERE NAME = ?";
 		List<Movie> movies = new LinkedList<Movie>();
 		PreparedStatement stmt = connection.prepareStatement(sql);
@@ -217,9 +172,6 @@ public class MovieDAO implements MovieDAOInterface, AutoCloseable{
 			Movie movie = new Movie(rs.getString("NAME"), rs.getString("GENRE"), rs.getString("movie_id"),
 					rs.getBoolean("availability"), rs.getDate("next_available_time"));
 			movie.setId(rs.getInt("ID"));
-			if(movie.getNext_available_time() != null) {
-				movie.setLocalDate();
-			}
 			movies.add(movie);
 		}
 		return movies;

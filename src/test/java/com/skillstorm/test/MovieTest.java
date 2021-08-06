@@ -23,9 +23,9 @@ import com.skillstorm.data.MovieDAO;
 public class MovieTest {
 	
 	MovieDAO dao = new MovieDAO();
-	private static String url = "jdbc:mysql://localhost:3307/java_project";
-	private static String username = "root";
-	private static String password = "root";
+	private String url = "jdbc:mysql://localhost:3307/java_project";
+	private String username = "root";
+	private String password = "root";
 	
 	@Before
 	public void setup() {
@@ -54,27 +54,11 @@ public class MovieTest {
 					+ "(3, 'Ip Man', 'Kung-Fu|Drama', '1340-4205', true, null)");
 			stmt.execute("insert into movie (id, name, genre, movie_id, availability, next_available_time) values "
 					+ "(4, 'Ong Bak', 'Kung-Fu', '1204-4205', true, null)");
-//			stmt.execute("insert into movie (id, name, genre, movie_id, availability, next_available_time) values "
-//					+ "(5, 'Kill Bill', 'Kung-Fu', '1350-4205', false, '2021-08-18')");
-//			stmt.execute("insert into movie (id, name, genre, movie_id, availability, next_available_time) values "
-//					+ "(6, 'Police Story', 'Kung-Fu|Comedy', '1200-1205', true, null)");
-//			stmt.execute("insert into movie (id, name, genre, movie_id, availability, next_available_time) values "
-//					+ "(7, 'Chocolate', 'Kung-Fu|Drama', '7410-4205', true, null)");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
-//	@Before
-//	public void slowDown() {
-//		try {
-//			Thread.sleep(5000);
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//	}
 	
 	// GET
 	@Test
@@ -97,7 +81,6 @@ public class MovieTest {
 			actual = dao.findAll();
 			assertEquals(expected, actual);
 			System.out.println("GET - Test FindAll Finished");
-			Thread.sleep(10000);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -130,7 +113,6 @@ public class MovieTest {
 			}
 			assertEquals(expected, actual);
 			System.out.println("GET - Test Availability Finished");
-			Thread.sleep(10000);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -149,9 +131,9 @@ public class MovieTest {
 			rs.next();
 			int expected = rs.getInt(1);
 			
-			Movie actual = dao.save(new Movie("Fists of Fury", "Kung-Fu|Drama", "451-453", true, null));
+			Movie actual = dao.save(new Movie("Way of the Dragon", "Kung-Fu|Comedy", "3548-7412", false, Date.valueOf("2021-08-11")));
 			assertEquals(expected, actual.getId() - 1);
-			System.out.println("ADD - Test Create Finished");
+			System.out.println("POST - Test Create Finished");
 			Thread.sleep(10000);
 		} catch(Exception e) {
 			e.printStackTrace();

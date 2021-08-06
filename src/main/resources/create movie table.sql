@@ -10,7 +10,7 @@ insert into movie (id, name, genre, movie_id, availability, next_available_time)
 insert into movie (id, name, genre, movie_id, availability, next_available_time) values (2, 'Alligator People, The', 'Horror', '11489-085', true, null);
 insert into movie (id, name, genre, movie_id, availability, next_available_time) values (3, 'King of Kong, The', 'Documentary', '0113-0825', true, null);
 insert into movie (id, name, genre, movie_id, availability, next_available_time) values (4, 'Three Crowns of the Sailor (Les trois couronnes du matelot)', 'Drama|Fantasy', '43857-0212', true, null);
-insert into movie (id, name, genre, movie_id, availability, next_available_time) values (5, 'London Paris New York', 'Romance', '52125-389', true, null);
+insert into movie (id, name, genre, movie_id, availability, next_available_time) values (5, 'Back to the Future', 'Sci-Fi', '52125-389', true, null);
 insert into movie (id, name, genre, movie_id, availability, next_available_time) values (6, 'Novo', 'Drama', '61657-0972', false, '2021-08-10');
 insert into movie (id, name, genre, movie_id, availability, next_available_time) values (7, 'Story of a Prostitute (Shunpu den)', 'Drama|War', '63629-1485', false, '2021-08-20');
 insert into movie (id, name, genre, movie_id, availability, next_available_time) values (8, 'Berlin 36', 'Drama', '24236-994', true, null);

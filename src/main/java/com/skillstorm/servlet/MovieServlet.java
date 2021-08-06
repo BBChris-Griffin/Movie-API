@@ -66,7 +66,8 @@ public class MovieServlet extends HttpServlet{
 	@Override
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		if(req.getParameter("id") != null && 
-				req.getParameter("next_available_time") == null) {
+				(req.getParameter("next_available_time") == null && req.getParameter("name") == null &&
+				req.getParameter("genre") == null)) {
 			int id = Integer.valueOf(req.getParameter("id"));
 			try(MovieDAO dao = new MovieDAO()) {
 				int i = dao.movieReturned(id);
